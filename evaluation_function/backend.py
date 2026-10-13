@@ -10,11 +10,12 @@ from typing import Any, Iterable, Mapping
 import sympy
 from lambdafeedback.expression_parsing import (
     ExpressionParams,
+    ExpressionParsingError,
     SympyParsingConfig,
     parse_expression,
     preprocess_expression,
 )
-from lambdafeedback.units import QuantityParams, parse_quantity as _parse_quantity
+from lambdafeedback.units import QuantityError, QuantityParams, parse_quantity as _parse_quantity
 
 
 class BackendError(ValueError):
@@ -43,15 +44,18 @@ def parse_quantity(text: str, params: Mapping[str, Any]) -> Quantity:
     """Read ``text`` (e.g. ``"50 cm"``) as a numeric quantity in SI units."""
     try:
         q = _parse_quantity(text, QuantityParams.from_dict(params))
-    except Exception as e:
+    except (QuantityError, ExpressionParsingError) as e:
         raise BackendError(f"Could not read '{text}' as a quantity.") from e
-    if q.value is None:
+    if q.value is None or not q.standard_values:
         raise BackendError(f"'{text}' has no numerical value.")
-    if q.standard_value.free_symbols:
+    if len(q.standard_values) > 1:
+        raise BackendError(f"Expected a single value, got '{text}'.")
+    (value,) = q.standard_values
+    if value.free_symbols:
         raise BackendError(f"Could not read the value in '{text}' as a number.")
     has_unit = q.unit is not None
     unit = q.standard_unit if has_unit else sympy.Integer(1)
-    return Quantity(text, sympy.nsimplify(q.standard_value), unit, has_unit)
+    return Quantity(text, sympy.nsimplify(value), unit, has_unit)
 
 
 def units_compatible(a: Quantity, b: Quantity) -> bool:
@@ -62,14 +66,12 @@ def units_compatible(a: Quantity, b: Quantity) -> bool:
 def parse_symbolic(text: str, symbols: Iterable[str], params: Mapping[str, Any]) -> sympy.Expr:
     """Parse an expression, treating every name in ``symbols`` as a single symbol."""
     symbols = tuple(symbols)
-    expression_params = ExpressionParams.from_dict(params)
-    config = SympyParsingConfig.from_params(expression_params, unsplittable_symbols=symbols)
     try:
-        expr = parse_expression(preprocess_expression("response", text, expression_params), config)
-    except Exception as e:
+        expression_params = ExpressionParams.from_dict(params)
+        config = SympyParsingConfig.from_params(expression_params, unsplittable_symbols=symbols)
+        expr = parse_expression(preprocess_expression(text, expression_params, name="response"), config)
+    except ExpressionParsingError as e:
         raise BackendError(f"Could not parse the expression '{text}'.") from e
-    if isinstance(expr, set):
-        raise BackendError(f"Expected a single expression, got '{text}'.")
     if isinstance(expr, sympy.Equality):
         return expr.lhs - expr.rhs
     return expr

@@ -7,6 +7,7 @@ from .backend import (
     evaluate_with_quantities,
     expressions_equivalent,
     parse_quantity,
+    parse_symbolic,
     units_compatible,
 )
 
@@ -32,6 +33,22 @@ class TestBackend(unittest.TestCase):
     def test_parse_quantity_rejects_non_numbers(self):
         with self.assertRaises(BackendError):
             parse_quantity("abc", {})
+
+    def test_parse_quantity_rejects_several_values(self):
+        with self.assertRaises(BackendError):
+            parse_quantity("{1, 2} m", {})
+
+    def test_parse_quantity_rejects_disallowed_unit(self):
+        with self.assertRaises(BackendError):
+            parse_quantity("10 litre", {"units_string": "SI"})
+
+    def test_parse_symbolic_rejects_several_expressions(self):
+        with self.assertRaises(BackendError):
+            parse_symbolic("{x, y}", [], {})
+
+    def test_parse_symbolic_rejects_invalid_params(self):
+        with self.assertRaises(BackendError):
+            parse_symbolic("x", [], {"strict_syntax": "no"})
 
     def test_expressions_equivalent(self):
         symbols = ["U", "L", "nu"]

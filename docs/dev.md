@@ -1,7 +1,7 @@
 # Combined response evaluation
 Evaluates several related response areas together. Each answer row decides how its response is checked: a symbolic expression, a quantity with units within a range, or a value computed from the student's own quantities in other rows (error carried forward).
 
-Parsing and units come from the `lambdafeedback-expression-parsing` and `lambdafeedback-units` packages (extracted from compareExpressions), installed as git dependencies. They are only used through `evaluation_function/backend.py`.
+Parsing and units come from the `lambdafeedback-expression-parsing` and `lambdafeedback-units` packages (extracted from compareExpressions), installed as git dependencies from the `v0.3.0-rc.2` tag of [lambda-feedback-packages](https://github.com/lambda-feedback/lambda-feedback-packages). They are only used through `evaluation_function/backend.py`.
 
 ## Inputs
 `response` and `answer` are 2D lists of `[label, value]` rows, matched by position. The labels must match.
@@ -58,4 +58,4 @@ poetry run pytest
 poetry run evaluation_function_dev '<response json>' '<answer json>' ['<params json>']
 ```
 
-Python 3.11–3.12 only: latex2sympy2 pins antlr4 4.7.2, which doesn't import on 3.13.
+Requires Python 3.12 to 3.14, as the `lambdafeedback-*` packages do.

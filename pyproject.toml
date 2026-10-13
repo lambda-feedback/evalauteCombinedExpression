@@ -11,19 +11,18 @@ evaluation_function = "evaluation_function.main:main"
 evaluation_function_dev = "evaluation_function.dev:dev"
 
 [tool.poetry.dependencies]
-# <3.13: latex2sympy2 (via lambdafeedback-expression-parsing) pins
-# antlr4-python3-runtime 4.7.2, which imports `typing.io`, removed in 3.13.
-python = ">=3.11,<3.13"
+# The lambdafeedback-* packages support Python 3.12 to 3.14.
+python = ">=3.12,<3.15"
 typing_extensions = "^4.12.2"
 lf_toolkit = { git = "https://github.com/lambda-feedback/toolkit-python.git", branch = "main", extras = [
     "ipc",
 ] }
-sympy = ">=1.12,<2.0"
-# Parsing and units machinery extracted from compareExpressions. All four are
-# listed (same rev) so the sibling dependencies resolve from git, not PyPI.
-lambdafeedback-slr-parsing = { git = "https://github.com/m-messer/lambda-feedback-packages.git", rev = "865d39999fdf9fc63839d6b1690eab2b6f3c432d", subdirectory = "slr_parsing" }
-lambdafeedback-expression-parsing = { git = "https://github.com/m-messer/lambda-feedback-packages.git", rev = "865d39999fdf9fc63839d6b1690eab2b6f3c432d", subdirectory = "expression_parsing" }
-lambdafeedback-units = { git = "https://github.com/m-messer/lambda-feedback-packages.git", rev = "865d39999fdf9fc63839d6b1690eab2b6f3c432d", subdirectory = "units" }
+sympy = ">=1.14,<2.0"
+# Parsing and units machinery extracted from compareExpressions. All three are
+# listed (same tag) so the sibling dependencies resolve from git, not PyPI.
+lambdafeedback-slr-parsing = { git = "https://github.com/lambda-feedback/lambda-feedback-packages.git", tag = "v0.3.0-rc.2", subdirectory = "slr_parsing" }
+lambdafeedback-expression-parsing = { git = "https://github.com/lambda-feedback/lambda-feedback-packages.git", tag = "v0.3.0-rc.2", subdirectory = "expression_parsing" }
+lambdafeedback-units = { git = "https://github.com/lambda-feedback/lambda-feedback-packages.git", tag = "v0.3.0-rc.2", subdirectory = "units" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
