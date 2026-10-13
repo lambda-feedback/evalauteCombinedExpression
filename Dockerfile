@@ -1,6 +1,6 @@
 FROM ghcr.io/lambda-feedback/evaluation-function-base/python:3.12 AS builder
 
-RUN pip install poetry==1.8.3
+RUN pip install poetry==2.1.3
 
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
