@@ -58,6 +58,8 @@ class RowResult:
 
 def parse_spec(label: str, text: str, params: Mapping[str, Any]) -> Spec:
     """Work out the row type from the answer text (see the module docstring)."""
+    if "$" in text:
+        raise ValueError(f"Answer for {label}: write '{text}' without '$'; only labels may be wrapped in '$'.")
     name = re.escape(label)
     range_match = re.fullmatch(rf"\s*(.+?)\s*(<=|<)\s*{name}\s*(<=|<)\s*(.+?)\s*", text)
     if range_match:
@@ -68,6 +70,11 @@ def parse_spec(label: str, text: str, params: Mapping[str, Any]) -> Spec:
     computed_match = re.fullmatch(rf"\s*{name}\s*=\s*(.+?)\s*", text)
     if computed_match:
         return ComputedSpec(computed_match.group(1))
+    if "<" in text:
+        raise ValueError(
+            f"Answer for {label}: '{text}' looks like a range, but '{label}' is not between the bounds. "
+            f"Write it as '<lower> < {label} < <upper>'."
+        )
     return ExpressionSpec(text)
 
 

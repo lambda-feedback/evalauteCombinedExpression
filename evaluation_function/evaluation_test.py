@@ -95,6 +95,25 @@ class TestEvaluationFunction(unittest.TestCase):
         with self.assertRaises(ValueError):
             evaluation_function(reynolds(), "not a list", Params())
 
+    def test_latex_labels(self):
+        answer = [[f"${label}$", text] for label, text in REYNOLDS_ANSWER]
+        response = [[f"${label}$", text] for label, text in reynolds()]
+        self.assertCorrect(response, answer=answer)
+        self.assertCorrect(reynolds(), answer=answer)
+        self.assertIncorrect(reynolds(U="0.2 m"), "U: the units are not correct", answer=answer)
+
+    def test_dollar_in_answer_raises(self):
+        answer = [["$L$", "0.001 m < $L$ < 1 m"]]
+        with self.assertRaisesRegex(ValueError, "without '\\$'"):
+            evaluation_function([["L", "0.5 m"]], answer, Params())
+
+    def test_range_without_label_raises(self):
+        with self.assertRaisesRegex(ValueError, "not between the bounds"):
+            evaluation_function([["L", "0.5 m"]], [["L", "0.001 m < l < 1 m"]], Params())
+
+    def test_inequality_response_is_incorrect(self):
+        self.assertIncorrect(reynolds(equation="U*L/nu < 3"), "Re: 'U*L/nu < 3' is not an expression")
+
 
 if __name__ == "__main__":
     unittest.main()

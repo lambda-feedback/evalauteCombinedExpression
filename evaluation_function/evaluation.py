@@ -15,10 +15,14 @@ from .rows import (
 
 
 def _rows(value: Any, name: str) -> list[tuple[str, str]]:
-    """Validate a 2D list of ``[label, value]`` rows."""
+    """Validate a 2D list of ``[label, value]`` rows.
+
+    Labels may be written as LaTeX (``$nu$``); the ``$`` are stripped so the
+    label matches the plain name used in the answers.
+    """
     if not isinstance(value, list) or not all(isinstance(row, list) and len(row) == 2 for row in value):
         raise ValueError(f"The {name} must be a list of [label, value] rows.")
-    return [(str(label).strip(), str(text).strip()) for label, text in value]
+    return [(str(label).strip().strip("$").strip(), str(text).strip()) for label, text in value]
 
 
 def evaluation_function(

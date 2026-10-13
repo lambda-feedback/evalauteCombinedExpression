@@ -74,6 +74,8 @@ def parse_symbolic(text: str, symbols: Iterable[str], params: Mapping[str, Any])
         raise BackendError(f"Could not parse the expression '{text}'.") from e
     if isinstance(expr, sympy.Equality):
         return expr.lhs - expr.rhs
+    if not isinstance(expr, sympy.Expr):
+        raise BackendError(f"'{text}' is not an expression.")
     return expr
 
 
