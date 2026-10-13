@@ -2,7 +2,9 @@
 
 Marks several related response areas together, so later answers can be checked against the student's own earlier answers.
 
-Set the answer as a list of `[label, answer]` rows, one per response area, in order:
+Use a Table response area with one column and a row per answer. Name the rows (e.g. `$Re$`, `$L$`), and give the same names, in order, in the `labels` parameter: the row names aren't sent to the evaluation function. For the example below, set the parameters to `{"labels": ["Re", "L", "U", "nu", "Re"]}`.
+
+What you write in each answer cell decides how that row is marked:
 
 - **An expression**, e.g. `U*L/nu`: the student's expression must be equivalent (`L*U/nu` and `U/(nu/L)` are both accepted).
 - **A range with units**, e.g. `0.001 m < L < 1 m`: the student must give a value with units (any equivalent units, e.g. `50 cm`) between the bounds. Use `<=` to include a bound.

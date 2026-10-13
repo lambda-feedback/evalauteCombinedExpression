@@ -111,6 +111,33 @@ class TestEvaluationFunction(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not between the bounds"):
             evaluation_function([["L", "0.5 m"]], [["L", "0.001 m < l < 1 m"]], Params())
 
+    def test_single_column_rows_with_labels_param(self):
+        # A one-column Table response area sends only the cells, with the
+        # params client-backend adds alongside the teacher's.
+        labels = ["$Re$", "$L$", "$U$", "$nu$", "$Re$"]
+        answer = [[text] for _, text in REYNOLDS_ANSWER]
+        params = {"labels": labels, "cases": [], "symbols": {}, "submission_context": {}}
+        response = [[text] for _, text in reynolds(L="50 cm", U="0.72 km/h", nu="0.01 cm^2/s")]
+        self.assertCorrect(response, answer=answer, params=params)
+        self.assertIncorrect(
+            [[text] for _, text in reynolds(U="0.2 m")], "U: the units are not correct", answer=answer, params=params
+        )
+
+    def test_single_column_rows_without_labels_param_raises(self):
+        with self.assertRaisesRegex(ValueError, "labels parameter"):
+            evaluation_function([["0.5 m"]], [["0.001 m < L < 1 m"]], Params())
+
+    def test_labels_param_count_mismatch_raises(self):
+        with self.assertRaisesRegex(ValueError, "1 rows, but 2 labels"):
+            evaluation_function([["0.5 m"]], [["0.001 m < L < 1 m"]], Params({"labels": ["L", "U"]}))
+
+    def test_labels_param_must_be_strings(self):
+        with self.assertRaisesRegex(ValueError, "list of strings"):
+            evaluation_function([["0.5 m"]], [["0.001 m < L < 1 m"]], Params({"labels": "L"}))
+
+    def test_labels_param_keeps_two_column_rows(self):
+        self.assertCorrect(reynolds(), params={"labels": ["Re", "L", "U", "nu", "Re"]})
+
     def test_inequality_response_is_incorrect(self):
         self.assertIncorrect(reynolds(equation="U*L/nu < 3"), "Re: 'U*L/nu < 3' is not an expression")
 

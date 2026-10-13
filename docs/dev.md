@@ -4,7 +4,9 @@ Evaluates several related response areas together. Each answer row decides how i
 Parsing and units come from the `lambdafeedback-expression-parsing` and `lambdafeedback-units` packages (extracted from compareExpressions), installed as git dependencies from the `v0.3.0-rc.2` tag of [lambda-feedback-packages](https://github.com/lambda-feedback/lambda-feedback-packages). They are only used through `evaluation_function/backend.py`.
 
 ## Inputs
-`response` and `answer` are 2D lists of `[label, value]` rows, matched by position. The labels must match.
+`response` and `answer` are 2D lists of `[label, value]` rows, matched by position. The labels must match. A `$` around a label is ignored (`$nu$` is `nu`).
+
+A one-column Table response area sends only its cells (`[["U*L/nu"], ["0.001 m < L < 1 m"], ...]`): client-backend doesn't pass on the Table's row names. For those, give the labels in the `labels` param instead, one per row.
 
 The answer row's value decides the row type:
 
@@ -18,6 +20,7 @@ Values in computed rows use the student's own range-row quantities even if those
 
 ### Params
 - `rtol` (default `0.01`): relative tolerance for computed rows.
+- `labels` (list of strings): the row labels, for single-column `[value]` rows. Must have one label per row.
 - Other keys (e.g. `units_string`, `strictness`, `symbols`) are passed through to the parsing packages.
 
 ## Outputs
